@@ -58,27 +58,27 @@ class _DecoderBlock(tf.keras.Model):
     
     def call(self, inputs, training=None):
         
-        x, skip = inputs
+        T2, T1 = inputs
         
-        x = self.dconv(x)
+        T2 = self.dconv(T2)
         
-        x = self.bn(x, training=training)
+        T2 = self.bn(x, training=training)
         
         if self.use_dropout:
-            x = self.dropout(x, training=training)
+            T2 = self.dropout(x, training=training)
         
-        x = tf.nn.relu(x)
-        I21 = tf.keras.layers.Concatenate()([x, skip])
+        T2 = tf.nn.relu(T2)
+        I21 = tf.keras.layers.Concatenate()([T2, T1])
         
         A = self.conv11(I21)
         w = tf.nn.sigmoid(A)
-        I3 = w * skip + x
+        I3 = w * T1 + T2
         
-        x = self.conv1(I3)
-        x = self.conv2(x)
+        T2 = self.conv1(I3)
+        T2 = self.conv2(T2)
 
 
-        return x        
+        return T2        
 
 
 class Encoder(tf.keras.Model):
@@ -143,4 +143,4 @@ class SemanticSegmentationModel(tf.keras.Model):
         dec_out = self.decoder(enc_out, training=training)
         logits = self.out_layer(dec_out)
 
-        return logits    
+        return logits
